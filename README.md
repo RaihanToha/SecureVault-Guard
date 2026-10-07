@@ -83,8 +83,7 @@ You can install SecureVault Guard directly onto your Android device using either
 
 We provide a dedicated Android Package (`.apk`) file hosted on our GitHub repository for direct installation:
 
-#### 📥 Download Link:
-> **Android APK Download**: [Download SecureVaultGuard.apk]() *(Link will be provided here)*
+
 
 #### Step-by-Step APK Installation Instructions:
 1. **Download the APK file** on your Android phone using the link above.

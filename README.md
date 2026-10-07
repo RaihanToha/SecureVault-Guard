@@ -1,241 +1,335 @@
-# 🛡️ SecureVault Guard — Simple User Manual & Quick-Start Guide
+# 🛡️ SecureVault Guard — User Manual \& Technical Implementation Document
 
-> **Your All-in-One Digital Security Vault: Store passwords, protect sensitive files with encryption, detect data breaches, and enjoy seamless real-time synchronization between your computer and Android phone.**
+> \*\*A Secure Password Vault and Encrypted File Storage System with Real-Time Cryptographic Integrity Monitoring, Two-Factor Authentication (2FA), and Multi-Device Synchronization.\*\*
 
----
+\---
 
-## 📑 Table of Contents
+# 📑 Master Table of Contents
 
-1. [Introduction](#1-introduction)
-   - [What is SecureVault Guard?](#what-is-securevault-guard)
-   - [What Can You Do With This App?](#what-can-you-do-with-this-app)
-   - [How It Protects Your Data (Visual Flowchart)](#how-it-protects-your-data)
-2. [How to Access the Web Version (No Installation Needed!)](#2-how-to-access-the-web-version-no-installation-needed)
-3. [Android App Download & Installation](#3-android-app-download--installation)
-   - [Option A: Direct APK File Installation (Download for Android)](#option-a-direct-apk-file-installation-download-for-android)
-   - [Option B: Quick Browser Install (PWA — 3 Taps)](#option-b-quick-browser-install-pwa--3-taps)
-   - [Simultaneous Real-Time Syncing Between Phone and Computer](#simultaneous-real-time-syncing-between-phone-and-computer)
-4. [Step-by-Step User Walkthrough](#4-step-by-step-user-walkthrough)
-   - [Step 1: Creating Your Account (Registration)](#step-1-creating-your-account-registration)
-   - [Step 2: One-Time Email Activation (First-Time Only)](#step-2-one-time-email-activation-first-time-only)
-   - [Step 3: Logging In with Your 6-Digit Email OTP](#step-3-logging-in-with-your-6-digit-email-otp)
-   - [Step 4: Managing Passwords in the Password Vault](#step-4-managing-passwords-in-the-password-vault)
-   - [Step 5: Uploading & Protecting Files in the File Vault](#step-5-uploading--protecting-files-in-the-file-vault)
-   - [Step 6: Real-Time Search & Tag Filtering](#step-6-real-time-search--tag-filtering)
-   - [Step 7: Switching Between Dark Mode & Light Mode](#step-7-switching-between-dark-mode--light-mode)
-   - [Step 8: Checking Your Personal Activity Logs](#step-8-checking-your-personal-activity-logs)
-5. [Beginner's Quick-Start Checklist](#5-beginners-quick-start-checklist)
-6. [Troubleshooting & Frequently Asked Questions (FAQ)](#6-troubleshooting--frequently-asked-questions-faq)
-7. [Optional: Information for Instructors / Developers](#7-optional-information-for-instructors--developers)
+* [BEGINNER'S USER MANUAL \& SETUP GUIDE](#beginners-user-manual--setup-guide)
 
----
+  * [1. Introduction](#1-introduction)
 
-## 1. Introduction
+    * [What is SecureVault Guard?](#what-is-securevault-guard)
+    * [Core Features](#core-features)
+    * [System Overview \& Visual Flowchart](#system-overview--visual-flowchart)
+  * [2. Prerequisites \& System Requirements](#2-prerequisites--system-requirements)
+  * [3. Extracting and Accessing Project Files](#3-extracting-and-accessing-project-files)
+  * [4. Configuring Environment \& Installation](#4-configuring-environment--installation)
+  * [5. Running the Application](#5-running-the-application)
+
+    * [Option A: Accessing the Live Web App (Instant Access)](#option-a-accessing-the-live-web-app-instant-access)
+    * [Option B: Running Locally on Your Computer](#option-b-running-locally-on-your-computer)
+  * [6. Adding to Home Screen (Mobile \& Desktop App Experience)](#6-adding-to-home-screen-mobile--desktop-app-experience)
+
+    * [On Android / Chrome](#on-android--chrome)
+    * [On iPhone / iPad (Safari)](#on-iphone--ipad-safari)
+    * [On Windows / Mac (Desktop Chrome / Edge)](#on-windows--mac-desktop-chrome--edge)
+    * [Simultaneous Real-Time Device Synchronization](#simultaneous-real-time-device-synchronization)
+  * [7. Step-by-Step User Walkthrough](#7-step-by-step-user-walkthrough)
+
+    * [Step 1: Account Registration](#step-1-account-registration)
+    * [Step 2: One-Time Email Activation (First-Time Sign-Up Only)](#step-2-one-time-email-activation-first-time-sign-up-only)
+    * [Step 3: Logging In with 6-Digit Email OTP (Two-Factor Authentication)](#step-3-logging-in-with-6-digit-email-otp-two-factor-authentication)
+    * [Step 4: Managing Passwords in the Password Vault](#step-4-managing-passwords-in-the-password-vault)
+    * [Step 5: Uploading \& Encrypting Files with SHA-256 Checksums](#step-5-uploading--encrypting-files-with-sha-256-checksums)
+    * [Step 6: Using Real-Time Search \& Tag Filtering](#step-6-using-real-time-search--tag-filtering)
+    * [Step 7: Switching Between Dark and Light Modes](#step-7-switching-between-dark-and-light-modes)
+    * [Step 8: Reviewing Personal Activity \& Security Logs](#step-8-reviewing-personal-activity--security-logs)
+  * [8. Beginner's Setup \& Operation Checklist](#8-beginners-setup--operation-checklist)
+  * [9. Troubleshooting \& Frequently Asked Questions (FAQ)](#9-troubleshooting--frequently-asked-questions-faq)
+  * [10. Submitting Your Project Files (For Students)](#10-submitting-your-project-files-for-students)
+  * [11. User Testing \& Version Control](#11-user-testing--version-control)
+
+\---
+
+# BEGINNER'S USER MANUAL \& SETUP GUIDE
+
+## 1\. Introduction
 
 ### What is SecureVault Guard?
-**SecureVault Guard** is an easy, bank-grade digital security app that runs straight in your web browser and as an installable app on your Android phone. You do not need to be a programmer or know any complex command-line tools. Simply open the website or install the APK, register an account, and start securing your credentials and files immediately!
 
-### What Can You Do With This App?
-* 🔑 **Store & Organize Passwords**: Save your logins, generate ultra-strong passwords, and categorize them with custom tags like `#Work`, `#Banking`, or `#Personal`.
-* 🚨 **Automatic Breach Alerts**: The app immediately alerts you if any of your saved credentials were leaked in public data breaches.
-* 📁 **Secure File Vault**: Upload confidential documents, photos, tax sheets, and IDs (PDF, Word, Excel, Images, ZIP up to 10 MB) with cryptographic tamper detection.
-* 🔍 **Instant Search & Filter**: Search anything instantly as you type and filter by clickable tags or security status.
-* 📱 **Live Real-Time Sync**: Use the app on your computer and your phone at the same time—any changes you make on one screen update on the other immediately!
-* 🔒 **Two-Factor Email Verification (2FA)**: Every login is guarded by a 6-digit One-Time Passcode sent straight to your email.
-* 🌓 **Dark & Light Themes**: Enjoy comfortable viewing in dark mode or clean light mode anytime.
+**SecureVault Guard** is an intuitive, all-in-one digital security dashboard. It securely stores your passwords, protects your confidential files, detects data breaches, and keeps all your devices synchronized in real time.
 
-### How It Protects Your Data
+Built with beginners in mind, you can use SecureVault Guard on **any device** (computers, laptops, tablets, Android, or iOS phones) directly through your web browser or by adding it to your home screen as an app without complicated installation procedures.
+
+### Core Features
+
+* 🔑 **Encrypted Password Vault**: Safely store credentials, generate 16+ character strong passwords, and organize items with custom tags (`#Work`, `#Finance`, `#Critical`).
+* 🚨 **Automated Data Breach Detection**: Checks your credentials in real time against public data breaches using the *Have I Been Pwned* k-anonymity API.
+* 📁 **Secure File Vault with Tamper Detection**: Upload confidential files (PDF, DOCX, TXT, PNG, JPG, CSV, ZIP up to 10 MB). The app calculates a **SHA-256 digital fingerprint** to verify that your files are never altered or corrupted.
+* 🔍 **Real-Time Search \& Tag Filtering**: Search instantly by name, email, checksum, or tags, with live match counters and clickable tag chips.
+* 📱 **Universal Cross-Platform Experience**: Works smoothly on any device. Add it to your home screen on Android or iPhone to use it as a native-feeling app.
+* ⚡ **Live Real-Time Cloud Sync**: Changes made on one device (such as your phone) instantly appear on your computer without reloading the page.
+* 🔒 **Two-Factor Authentication (2FA OTP)**: Protects your account with real 6-digit email OTP verification codes.
+* 🌓 **Dark \& Light Themes**: Switch between Dark Mode and Light Mode with a single click.
+* 📜 **Personal Activity Logs**: Review your private login timestamps, file checks, and password modifications.
+
+### System Overview \& Visual Flowchart
 
 ```text
-  [ Your Computer / Laptop ]                [ Your Android Smartphone ]
-              |                                         |
-              +--------------------+--------------------+
-                                   |
-                                   v
-             [ Secure Cloud & Real-Time Sync Engine ]
-                                   |
-         +-------------------------+-------------------------+
-         |                                                   |
-         v                                                   v
- [ Password Vault ]                                  [ File Vault ]
- - Military-Grade AES-256 Encryption                - Cryptographic SHA-256 Checksum
- - Automatic Data Breach Checker                    - Tamper Detection & Repair
- - Real-Time Search & Tag Filtering                 - Instant Decrypted Download
++-------------------------------------------------------------------------+
+|                         SECUREVAULT GUARD SUITE                         |
++-------------------------------------------------------------------------+
+       |                                                    |
+       v                                                    v
+\[ Desktop Web Browser ]                            \[ Mobile Home Screen App ]
+(Windows, Mac, Linux)                              (Android, iPhone, iPad)
+       |                                                    |
+       +-------------------------+--------------------------+
+                                 |
+                                 v
+                 \[ Client-Side AES-256 Encryption ]
+                                 |
+        +------------------------+------------------------+
+        |                                                 |
+        v                                                 v
+\[ Password Vault ]                                 \[ File Vault ]
+- Strong Password Generator                        - SHA-256 Hash Verification
+- Breach Detection (HIBP API)                      - Tamper Detection \& Repair
+- Tag \& Real-Time Search Filter                    - Category \& Tag Search
+        |                                                 |
+        +------------------------+------------------------+
+                                 |
+                                 v
+        \[ Firebase Firestore \& Real-Time Cloud Synchronization ]
+                                 |
+        \[ FormSubmit 2FA One-Time Passcode Email Verification ]
 ```
 
----
+\---
 
-## 2. How to Access the Web Version (No Installation Needed!)
+## 2\. Prerequisites \& System Requirements
 
-You can use SecureVault Guard immediately on any desktop PC, Mac, laptop, tablet, or phone without installing any software or opening command prompts:
+To access and use SecureVault Guard, all you need is a modern web browser:
 
-1. **Open your favorite web browser** (Google Chrome, Microsoft Edge, Safari, Firefox, or Brave).
-2. **Visit the application website link** in your browser.
-3. The **SecureVault Guard** welcome screen will appear right away!
+|Requirement|Recommended Version|Purpose|
+|-|-|-|
+|**Operating System**|Windows 10/11, macOS, Linux, Android, or iOS|Any modern operating system|
+|**Web Browser**|Google Chrome, Edge, Safari, Firefox, or Brave|To open the web application|
+|**Internet Connection**|Active Internet connection|For 2FA OTP delivery and real-time cloud synchronization|
+|**Node.js (Optional)**|Node.js 18.x or 20.x LTS|*Only required if building or running the project locally from source code*|
 
----
+\---
 
-## 3. Android App Download & Installation
+## 3\. Extracting and Accessing Project Files
 
-You can install SecureVault Guard directly onto your Android device using either of the two easy methods below:
+If you downloaded the program source files as a `.zip` archive:
 
-### Option A: Direct APK File Installation (Download for Android)
+### On Windows:
 
-We provide a dedicated Android Package (`.apk`) file hosted on our GitHub repository for direct installation:
+1. Locate `SecureVault-Guard.zip` in your **Downloads** folder.
+2. Right-click the file and select **Extract All...**.
+3. Choose a destination folder (e.g., `C:\\Projects\\SecureVault-Guard`) and click **Extract**.
 
+### On macOS / Linux:
 
+1. Double-click `SecureVault-Guard.zip`, or open a terminal and execute:
 
-#### Step-by-Step APK Installation Instructions:
-1. **Download the APK file** on your Android phone using the link above.
-2. Once the download finishes, tap the downloaded file notification or open your phone's **Files / Downloads** app and tap **`SecureVaultGuard.apk`**.
-3. If Android displays a prompt saying *"For your security, your phone is not allowed to install unknown apps from this source"*:
-   - Tap **Settings**.
-   - Toggle **"Allow from this source"** (or **"Install unknown apps"**) to ON.
-   - Tap the Back button.
-4. Tap **"Install"** on the installation dialog.
-5. Once the installation is complete, tap **"Open"**.
-6. The **SecureVault Guard** app is now ready to use from your app drawer and home screen!
+```bash
+   unzip SecureVault-Guard.zip -d SecureVault-Guard
+   ```
 
----
+2. Open the newly extracted folder.
 
-### Option B: Quick Browser Install (PWA — 3 Taps)
+\---
 
-If you prefer not to download an APK file, you can install the app straight from Google Chrome:
+## 4\. Configuring Environment \& Installation
 
-1. **Open Google Chrome** on your Android phone.
-2. **Visit the SecureVault Guard website link**.
-3. Tap the **Three Dots Menu (⋮)** in the top right corner of Chrome.
-4. Tap **"Install app"** (or **"Add to Home screen"**).
-5. Tap **"Install"** to confirm.
-6. 🎉 Done! The **SecureVault Guard** shield icon will appear on your phone's home screen.
+If you are running the project locally from the extracted source files:
 
----
+1. Open your computer's terminal or Command Prompt.
+2. Navigate to the project directory:
 
-### Simultaneous Real-Time Syncing Between Phone and Computer:
-* Log in with your same account on both your desktop computer and your Android phone.
-* Whenever you add a new password or upload a document on your phone, it appears on your computer screen **in real time**—no manual refresh needed!
+```bash
+   cd path/to/SecureVault-Guard
+   ```
 
----
+3. Install the project packages:
 
-## 4. Step-by-Step User Walkthrough
+```bash
+   npm install
+   ```
 
-### Step 1: Creating Your Account (Registration)
-1. On the main sign-in page, click the **"Create Account"** link at the bottom.
-2. Fill in:
-   - **Your Name** (e.g., *Alex Johnson*)
-   - **Your Email Address** (e.g., *alex@example.com*)
-   - **Your Master Password** (minimum 8 characters)
+*(If you are accessing the hosted live website version, you can skip this step entirely!)*
+
+\---
+
+## 5\. Running the Application
+
+### Option A: Accessing the Live Web App (Instant Access)
+
+1. Open your web browser on any device.
+2. Navigate to the application URL ( https://securevaultguard.ai.studio ).
+3. The sign-in screen appears immediately!
+
+### Option B: Running Locally on Your Computer
+
+If running from source code on your local computer:
+
+```bash
+npm run dev
+```
+
+Open **`http://localhost:3000`** in your browser to start using the app.
+
+\---
+
+## 6\. Adding to Home Screen (Mobile \& Desktop App Experience)
+
+Users on all platforms can install SecureVault Guard to their home screen or desktop with a few clicks:
+
+### On Android / Chrome:
+
+1. Open the website in **Google Chrome** on your Android phone.
+2. Tap the **Three Dots Menu (⋮)** in the top right corner.
+3. Tap **"Install app"** (or **"Add to Home screen"**).
+4. Tap **"Install"**. The app icon is added to your home screen!
+
+### On iPhone / iPad (Safari):
+
+1. Open the website in **Safari**.
+2. Tap the **Share button** (square with an upward arrow) at the bottom.
+3. Scroll down and tap **"Add to Home Screen"**.
+4. Tap **"Add"** in the top right corner.
+
+### On Windows / Mac (Desktop Chrome / Edge):
+
+1. Open the website in Chrome or Edge.
+2. Click the **Install icon** in the browser address bar (top right).
+3. Click **"Install"** to run SecureVault Guard as a standalone desktop window.
+
+### Simultaneous Real-Time Device Synchronization:
+
+* Sign in with your account on both your computer and your phone.
+* Any password or file you add or edit on one device updates **instantly** on the other device in real time!
+
+\---
+
+## 7\. Step-by-Step User Walkthrough
+
+### Step 1: Account Registration
+
+1. On the initial screen, click **"Create Account"**.
+2. Enter your **Full Name**, **Email Address**, and a master **Password** (minimum 8 characters).
 3. Click **"Register Account"**.
 
----
+### Step 2: One-Time Email Activation (First-Time Sign-Up Only)
 
-### Step 2: One-Time Email Activation (First-Time Only)
-> 💡 *This step happens only ONCE when you first sign up. From your second login onwards, OTP codes will arrive directly in your inbox!*
+> 💡 \*This step happens only ONCE when you first sign up.\*
 
-1. When you first log in after creating an account, **FormSubmit** sends a verification email to your inbox to enable automated OTP delivery.
-2. Open your email app and look for an email titled **"FormSubmit - Action Required"**.
-   *(If you do not see it within 30 seconds, please check your **Spam / Junk** folder).*
-3. Open the email and tap/click the big blue **"Activate Form"** button.
-4. It activates **instantly** in your browser with a confirmation message.
-5. Return to the SecureVault Guard tab and click **"Resend OTP"**.
-6. Your 6-digit verification code will now arrive in your inbox immediately!
+1. When you first log in, **FormSubmit** sends an activation email to verify your email address for OTP delivery.
+2. Open your email inbox and find the email from **FormSubmit**. *(If not visible, check your **Spam / Junk** folder).*
+3. Click the blue **"Activate Form"** button in the email.
+4. It activates **immediately** in your browser.
+5. Return to SecureVault Guard and click **"Resend OTP"** to receive your 6-digit code.
 
----
+### Step 3: Logging In with 6-Digit Email OTP (Two-Factor Authentication)
 
-### Step 3: Logging In with Your 6-Digit Email OTP
-1. On the **Sign In** screen, enter your registered email address and password.
+1. Enter your registered email and password on the **Sign In** screen.
 2. Click **"Sign In to Vault"**.
-3. Check your email for your 6-digit code (e.g., `482910`).
-4. Type or paste the 6 digits into the boxes.
-5. Click **"Verify & Continue"** to unlock your vault dashboard.
-
----
+3. Check your email for your 6-digit verification code.
+4. Enter the 6 digits into the input boxes and click **"Verify \& Continue"**.
 
 ### Step 4: Managing Passwords in the Password Vault
+
 1. Click **"Password Vault"** in the top navigation bar.
-2. In the **"Add New Password"** section:
-   - Enter the **Website / Service** name (e.g., *Netflix, Work Email, Bank of America*).
-   - Enter your **Username / Email**.
-   - Type a password, or click **"Generate Strong"** for an automatic high-security password.
-   - Pick a **Category** and type any custom **Tags** (e.g., `#Streaming`, `#Work`, `#Urgent`).
-3. Click **"Save Encrypted Password"**.
-4. **Breach Monitor**: If any saved password has ever been leaked in a public company breach, SecureVault Guard will flag it with a red **🚨 Leaked** warning so you can update it safely.
+2. Enter the **Website / Title**, **Username**, and **Password** (or click **"Generate Strong"**).
+3. Assign a **Category** (*Personal, Work, Finance, Social*) and custom **Tags** (e.g., `#Work`, `#Critical`).
+4. Click **"Save Encrypted Password"**.
+5. Check the **Breach Monitor** badge (*Safe* or *🚨 Leaked*). If compromised, click **"Remediate Breach"** to update your password.
 
----
+### Step 5: Uploading \& Encrypting Files with SHA-256 Checksums
 
-### Step 5: Uploading & Protecting Files in the File Vault
 1. Click **"File Vault"** in the navigation bar.
-2. Click **"Choose File"** (supports PDFs, Word docs, spreadsheets, pictures, and ZIP archives up to 10 MB).
-3. Choose or type tags (e.g., `#Tax2026`, `#Confidential`, `#IDCard`).
+2. Click **"Choose File"** to select a document or image (PDF, Word, Excel, Images, ZIP up to 10 MB).
+3. Add optional tags (e.g., `#Tax2026`, `#Confidential`).
 4. Click **"Upload and Encrypt File"**.
-5. Your file is automatically given a unique cryptographic **SHA-256 digital fingerprint** to guarantee that no one can tamper with or corrupt your file.
-6. Click the **Download Icon** at any time to decrypt and download your original file.
+5. The application computes a **SHA-256 digital hash** to protect the file against tampering.
+6. Click the **Download Icon** at any time to decrypt and download your file.
 
----
+### Step 6: Using Real-Time Search \& Tag Filtering
 
-### Step 6: Real-Time Search & Tag Filtering
-1. At the top of either vault, type in the search bar. The list filters **instantly as you type**.
-2. Click any of the colorful **Tag Buttons** (e.g., `#Work`, `#Finance`, `#PDF`, `#Critical`) to instantly filter items by category.
-3. Click **"Reset filters"** (or press the `Esc` key) anytime to show all items again.
+1. In either vault, type into the search bar to filter items instantly.
+2. Click any of the **Tag Pills** (e.g., `#Work`, `#Finance`, `#PDF`) to narrow down results.
+3. Click **"Reset filters"** (or press `Esc`) to clear your search.
 
----
+### Step 7: Switching Between Dark and Light Modes
 
-### Step 7: Switching Between Dark Mode & Light Mode
-* Click the **Sun / Moon Icon** in the top navigation bar at any time to switch between sleek Dark Mode and clear Light Mode.
-* The app remembers your preference automatically across visits.
+* Click the **Sun / Moon Icon** in the top navigation bar to toggle between Dark and Light themes.
 
----
+### Step 8: Reviewing Personal Activity \& Security Logs
 
-### Step 8: Checking Your Personal Activity Logs
-1. Click **"Security Logs"** in the top menu.
-2. Review your personal security activity timeline (e.g., *Log in successful, Password added, File downloaded*).
-3. The activity log is completely private to your account and synchronizes across all your devices.
+1. Click **"Security Logs"** in the navigation bar.
+2. View real-time timestamps of all user activities (e.g., *Logins, Password Additions, File Integrity Verifications*).
+3. All logs are private to your user account.
 
----
+\---
 
-## 5. Beginner's Quick-Start Checklist
+## 8\. Beginner's Setup \& Operation Checklist
 
-Follow this simple checklist to get the most out of your vault:
+* \[ ] **Access Website**: Opened SecureVault Guard in your browser.
+* \[ ] **Create Account**: Registered with your name, email, and password.
+* \[ ] **One-Time Email Activation**: Clicked "Activate Form" in the FormSubmit email.
+* \[ ] **Complete 2FA Login**: Entered your 6-digit OTP code.
+* \[ ] **Save a Password**: Added a credential and verified breach detection.
+* \[ ] **Upload a File**: Uploaded a file and verified its SHA-256 checksum.
+* \[ ] **Test Real-Time Search**: Filtered entries by search query and tag pills.
+* \[ ] **Add to Home Screen**: Added the app to your phone or desktop home screen.
+* \[ ] **Verify Real-Time Sync**: Opened on two devices simultaneously to verify instant updates.
 
-- [ ] **Open the Web Version or Install Android APK**: Opened the website or installed the APK on your phone.
-- [ ] **Create Account**: Registered with your name, email, and master password.
-- [ ] **One-Time Email Activation**: Clicked "Activate Form" in the FormSubmit email (checked Spam folder if needed).
-- [ ] **Logged In with OTP**: Received and entered your 6-digit code.
-- [ ] **Saved a Test Password**: Stored a password and generated a strong 16-character key.
-- [ ] **Uploaded a Document**: Stored a test file in the File Vault and verified its security status.
-- [ ] **Tried Search & Tags**: Filtered entries by typing in the search bar and clicking tag pills.
-- [ ] **Tested Real-Time Sync**: Opened on both computer and phone to see instant real-time updates.
+\---
 
----
+## 9\. Troubleshooting \& Frequently Asked Questions (FAQ)
 
-## 6. Troubleshooting & Frequently Asked Questions (FAQ)
+### Q1: I did not receive my OTP email on my first login. What should I do?
 
-### Q1: I didn't receive my 6-digit OTP email on my first login. What should I do?
-* **Solution**: Check your **Spam / Junk folder** for an email from **FormSubmit**. Open that email and click the **"Activate Form"** button. After clicking it, return to the app and click **"Resend Code to Email"**. Your OTP will arrive right away.
+* **Solution**: Check your **Spam / Junk folder** for an email from **FormSubmit**. Open that email and click the **"Activate Form"** button. Return to SecureVault Guard and click **"Resend OTP"**. Your code will arrive immediately.
 
-### Q2: Do I have to activate FormSubmit every time I log in?
-* **Answer**: No! You only have to click "Activate Form" the very first time you use your email. All subsequent logins will receive your 6-digit OTP code directly and automatically.
+### Q2: Do I need to activate FormSubmit on every login?
 
-### Q3: My phone blocked the APK installation saying "Unknown app". How do I proceed?
-* **Solution**: On Android, tap **Settings** on the prompt, enable **"Allow from this source"**, tap back, and tap **"Install"**. This is standard for APK files downloaded directly outside Google Play.
+* **Answer**: No. This activation is required only once per email address. All future logins will send the OTP directly to your inbox.
 
-### Q4: Will my data sync between my laptop and my phone?
-* **Answer**: Yes! As long as you log in with the same email and password on both devices, any password or file you add on one device will show up immediately on the other in real time.
+### Q3: How do I install this on my smartphone?
 
-### Q5: What if I forget my account password?
-* **Solution**: On the Sign In screen, click **"Forgot Password?"**, enter your email address, and click **"Send Password Reset Link"**. Check your email to set a new password.
+* **Solution**: Open the website in **Chrome** (Android) or **Safari** (iOS), tap the menu/share button, and select **"Add to Home Screen"** or **"Install app"**.
 
----
+### Q4: Will changes synchronize automatically between my phone and computer?
 
-## 7. Optional: Information for Instructors / Developers
+* **Answer**: Yes! Because the system connects to a real-time cloud database, any action taken on your phone appears on your computer within milliseconds.
 
-If you are a developer, educator, or grading instructor who would like to run the source code in a local development environment:
+### Q5: How do I reset my password?
 
-1. **Prerequisites**: Node.js (version 18+ or 20+ LTS).
-2. **Install dependencies**: `npm install`
-3. **Start local server**: `npm run dev`
-4. **Open in browser**: `http://localhost:3000`
+* **Solution**: On the Sign In screen, click **"Forgot Password?"**, enter your email, and click **"Send Password Reset Link"**.
 
----
+\---
 
-**© 2026 SecureVault Guard — Safe, Simple, and Encrypted Security for Everyone**
+## 10\. Submitting Your Project Files (For Students)
+
+When submitting this project for academic evaluation:
+
+1. **Delete the `node\_modules` folder** to minimize file size:
+
+```bash
+   # Windows (PowerShell)
+   Remove-Item -Recurse -Force node\_modules
+
+   # macOS / Linux
+   rm -rf node\_modules
+   ```
+
+2. **Compress into a ZIP archive**: Right-click the root folder and select **Compress** or **Send to → Compressed (zipped) folder**.
+3. **Verify submission contents**: Confirm that `src/`, `public/`, `package.json`, `vite.config.ts`, `index.html`, and `README.md` are included.
+
+\---
+
+## 11\. User Testing \& Version Control
+
+* **Peer Testing**: Ask a fellow student or beginner to open the app, register, and add a credential without verbal assistance.
+* **Feedback Iteration**: Refine instructions based on any points of confusion.
+* **Version Control**: Record all feature updates using Git commits (`git commit -m "docs: complete user manual and TID"`).
+
+\---
+
+**© 2026 SecureVault Guard — AES-256 Encrypted Security Suite**
+

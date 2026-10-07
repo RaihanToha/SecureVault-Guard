@@ -103,6 +103,9 @@ interface UserContextType {
   isAuthenticated: boolean;
   isMfaVerified: boolean;
   setIsMfaVerified: (val: boolean) => void;
+  activeLoginOtp: string | null;
+  setActiveLoginOtp: (val: string | null) => void;
+  dispatchLoginOtp: (targetEmail: string) => Promise<{ success: boolean; code: string; message?: string }>;
   // Auth actions
   loginWithEmail: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
   registerWithEmail: (email: string, pass: string, name: string) => Promise<{ success: boolean; error?: string }>;
@@ -173,9 +176,31 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [isMfaVerified, setIsMfaVerified] = useState(false);
+  const [activeLoginOtp, setActiveLoginOtp] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
   const [isScanningBreaches, setIsScanningBreaches] = useState(false);
+
+  // Helper to dispatch 6-digit OTP code to user's email upon explicit login request
+  const dispatchLoginOtp = async (
+    targetEmail: string
+  ): Promise<{ success: boolean; code: string; message?: string }> => {
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    setActiveLoginOtp(code);
+    try {
+      const res = await sendOtpToEmail(targetEmail, code, "Login MFA Verification");
+      await addSecurityLog(
+        "MFA OTP dispatched",
+        "Success",
+        "MFA",
+        `Dispatched 6-digit OTP code to ${targetEmail}`
+      );
+      return { success: true, code, message: res.message };
+    } catch (e) {
+      console.warn("OTP dispatch error:", e);
+      return { success: false, code, message: "Failed to dispatch email. You can click resend." };
+    }
+  };
 
   // Profile State: Starts empty, populated dynamically from authenticated Firebase user
   const [profile, setProfile] = useState<UserProfile>(() => {
@@ -307,9 +332,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
   }, [securityLogs, firebaseUser]);
 
-  // Test Firestore Connection on Boot per guideline
+  // Test Firestore Connection and ensure fresh boot starts on Login Page
   useEffect(() => {
     testFirestoreConnection();
+    // Guarantee that opening/reloading the app always presents the clean Login screen
+    signOut(auth).catch(() => {});
+    setIsMfaVerified(false);
+    setActiveLoginOtp(null);
   }, []);
 
   // Listen to Firebase Auth state
@@ -652,6 +681,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       const res = await signInWithEmailAndPassword(auth, email, pass);
       await addSecurityLog("Login successful", "Success", "Authentication", `Logged in as ${email}`);
       setIsMfaVerified(false); // require OTP verification if 2FA enabled
+      // Dispatch OTP exclusively on this explicit user login action
+      await dispatchLoginOtp(email);
       return { success: true };
     } catch (err: any) {
       await addSecurityLog("Login failed", "Failed", "Authentication", `Failed login attempt for ${email}`);
@@ -705,6 +736,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
       await addSecurityLog("Registration – Success", "Success", "Authentication", `New account registered for ${email}`);
       setIsMfaVerified(false);
+      // Dispatch OTP upon initial registration completion
+      await dispatchLoginOtp(email);
       return { success: true };
     } catch (err: any) {
       await addSecurityLog("Registration – Failed", "Failed", "Authentication", `Registration error for ${email}`);
@@ -734,6 +767,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       }
       await addSecurityLog("Login with Google", "Success", "Authentication", `Google OAuth verified for ${user.email}`);
       setIsMfaVerified(false);
+      if (user.email) {
+        await dispatchLoginOtp(user.email);
+      }
       return { success: true };
     } catch (err: any) {
       await addSecurityLog("Google Login failed", "Failed", "Authentication", err.message || "OAuth canceled");
@@ -1532,6 +1568,9 @@ SecureVault Guard Security Team`,
         isAuthenticated,
         isMfaVerified,
         setIsMfaVerified,
+        activeLoginOtp,
+        setActiveLoginOtp,
+        dispatchLoginOtp,
         loginWithEmail,
         registerWithEmail,
         loginWithGoogle,

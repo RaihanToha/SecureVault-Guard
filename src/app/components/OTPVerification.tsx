@@ -14,6 +14,7 @@ import {
   ExternalLink,
   Sparkles,
   HelpCircle,
+  ArrowLeft,
 } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import { useTheme } from "../context/ThemeContext";
@@ -22,27 +23,35 @@ import { sendOtpToEmail } from "../utils/emailService";
 interface OTPVerificationProps {
   onVerify: () => void;
   onBlocked?: () => void;
+  onBack?: () => void;
   targetEmail?: string;
 }
 
-export function OTPVerification({ onVerify, onBlocked, targetEmail: propEmail }: OTPVerificationProps) {
-  const { firebaseUser, profile, addSecurityLog } = useUser();
+export function OTPVerification({
+  onVerify,
+  onBlocked,
+  onBack,
+  targetEmail: propEmail,
+}: OTPVerificationProps) {
+  const { firebaseUser, profile, activeLoginOtp, setActiveLoginOtp, addSecurityLog } = useUser();
   const { isDark, toggleTheme } = useTheme();
 
   // Always use the primary account email for verifying OTP
   const recipientEmail = firebaseUser?.email || profile.email || propEmail || "user@example.com";
 
-  // Generated 6-digit OTP code (held in memory, dispatched to email)
-  const [currentOtpCode, setCurrentOtpCode] = useState(() =>
-    Math.floor(100000 + Math.random() * 900000).toString()
-  );
+  // Generated 6-digit OTP code (initialized from activeLoginOtp if dispatched during login)
+  const [currentOtpCode, setCurrentOtpCode] = useState<string>(() => {
+    return activeLoginOtp || Math.floor(100000 + Math.random() * 900000).toString();
+  });
 
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [attempts, setAttempts] = useState(0);
   const [isBlocked, setIsBlocked] = useState(false);
   const [verified, setVerified] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [deliveryStatus, setDeliveryStatus] = useState<string | null>(null);
+  const [deliveryStatus, setDeliveryStatus] = useState<string | null>(
+    `A 6-digit verification code has been dispatched to ${recipientEmail}`
+  );
   const [isDispatching, setIsDispatching] = useState(false);
   const [showActivationHelp, setShowActivationHelp] = useState(false);
 
@@ -50,39 +59,14 @@ export function OTPVerification({ onVerify, onBlocked, targetEmail: propEmail }:
   const [cooldown, setCooldown] = useState(30);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Guard to ensure initial OTP email is dispatched exactly ONCE per session
-  const initialDispatchRef = useRef(false);
-
-  // Dispatch OTP email on initial mount
+  // Update currentOtpCode if activeLoginOtp changes
   useEffect(() => {
-    if (initialDispatchRef.current) return;
-    initialDispatchRef.current = true;
+    if (activeLoginOtp) {
+      setCurrentOtpCode(activeLoginOtp);
+    }
+  }, [activeLoginOtp]);
 
-    let isMounted = true;
-    setIsDispatching(true);
-
-    sendOtpToEmail(recipientEmail, currentOtpCode, "Login MFA Verification")
-      .then((res) => {
-        if (isMounted) {
-          setIsDispatching(false);
-          setDeliveryStatus(`Verification code dispatched to ${recipientEmail}`);
-          addSecurityLog(
-            "MFA OTP dispatched",
-            "Success",
-            "MFA",
-            `Dispatched 6-digit OTP code to ${recipientEmail}`
-          );
-        }
-      })
-      .catch(() => {
-        if (isMounted) setIsDispatching(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [recipientEmail, currentOtpCode, addSecurityLog]);
-
+  // Cooldown countdown timer
   useEffect(() => {
     if (cooldown > 0) {
       const timer = setInterval(() => setCooldown((c) => c - 1), 1000);
@@ -128,7 +112,7 @@ export function OTPVerification({ onVerify, onBlocked, targetEmail: propEmail }:
       return;
     }
 
-    if (entered === currentOtpCode) {
+    if (entered === currentOtpCode || (activeLoginOtp && entered === activeLoginOtp)) {
       setVerified(true);
       setErrorMessage(null);
       addSecurityLog(
@@ -137,7 +121,7 @@ export function OTPVerification({ onVerify, onBlocked, targetEmail: propEmail }:
         "MFA",
         `Two-factor authentication verified successfully for ${recipientEmail}`
       );
-      setTimeout(onVerify, 900);
+      setTimeout(onVerify, 800);
     } else {
       const newAttempts = attempts + 1;
       setAttempts(newAttempts);
@@ -166,6 +150,7 @@ export function OTPVerification({ onVerify, onBlocked, targetEmail: propEmail }:
     if (cooldown > 0 || isBlocked || isDispatching) return;
     const newCode = Math.floor(100000 + Math.random() * 900000).toString();
     setCurrentOtpCode(newCode);
+    setActiveLoginOtp(newCode);
     setOtp(["", "", "", "", "", ""]);
     setCooldown(30);
     setErrorMessage(null);
@@ -184,7 +169,7 @@ export function OTPVerification({ onVerify, onBlocked, targetEmail: propEmail }:
         `Resent replacement OTP code to ${recipientEmail}`
       );
     } catch {
-      setDeliveryStatus(`Failed to dispatch email. Please try again.`);
+      setDeliveryStatus(`Failed to dispatch email. Please click resend to try again.`);
     }
 
     setIsDispatching(false);
@@ -193,6 +178,21 @@ export function OTPVerification({ onVerify, onBlocked, targetEmail: propEmail }:
 
   return (
     <div className="min-h-screen bg-[#F7F8FC] dark:bg-slate-950 flex flex-col items-center justify-center p-4 py-8 relative transition-colors duration-200">
+      {/* Top Navigation Bar: Back button on left, Theme Toggle on right */}
+      <div className="absolute top-4 left-4 z-10">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="p-2 px-3 rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors shadow-xs flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
+            title="Return to login page"
+          >
+            <ArrowLeft className="w-4 h-4 text-gray-500 dark:text-slate-400" />
+            <span>Back to Sign In</span>
+          </button>
+        )}
+      </div>
+
       {/* Theme Toggle in top right */}
       <div className="absolute top-4 right-4 z-10">
         <button
@@ -217,7 +217,7 @@ export function OTPVerification({ onVerify, onBlocked, targetEmail: propEmail }:
 
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-md dark:shadow-2xl border border-gray-100 dark:border-slate-800 w-full max-w-md p-6 sm:p-8 transition-colors duration-200">
         {/* Brand Icon and Header */}
-        <div className="flex flex-col items-center mb-5">
+        <div className="flex flex-col items-center mb-4">
           <div className="w-12 h-12 bg-[#0B5CE5] rounded-full flex items-center justify-center mb-2 shadow-sm shadow-blue-500/20">
             <Shield className="w-6 h-6 text-white" />
           </div>
@@ -229,7 +229,7 @@ export function OTPVerification({ onVerify, onBlocked, targetEmail: propEmail }:
           Email OTP Verification
         </h1>
         <p className="text-center text-gray-500 dark:text-slate-400 text-xs mb-4">
-          For your security, a one-time verification code has been dispatched to your primary account email.
+          Enter the 6-digit verification code sent to your email to complete login.
         </p>
 
         {/* Real Email Dispatch Notice */}
@@ -237,7 +237,7 @@ export function OTPVerification({ onVerify, onBlocked, targetEmail: propEmail }:
           <Mail className="w-4 h-4 text-[#0B5CE5] dark:text-blue-400 shrink-0 mt-0.5" />
           <div className="text-xs flex-1 min-w-0">
             <div className="font-semibold text-blue-900 dark:text-blue-200 flex items-center gap-1.5">
-              <span>Code dispatched to:</span>
+              <span>Verification sent to:</span>
               {isDispatching && <Loader2 className="w-3 h-3 animate-spin text-[#0B5CE5] dark:text-blue-400" />}
             </div>
             <p className="font-mono text-[11px] text-[#0B5CE5] dark:text-blue-400 font-bold break-all mt-0.5 truncate">
@@ -258,45 +258,45 @@ export function OTPVerification({ onVerify, onBlocked, targetEmail: propEmail }:
             </div>
           </div>
           <p className="text-[11px] leading-snug text-amber-900/90 dark:text-amber-200/90">
-            FormSubmit sends a one-time activation email on your first login.
+            If you registered recently, look for a one-time activation email from <strong>FormSubmit</strong> titled <em>&quot;Action Required: Activate Form&quot;</em>.
           </p>
-          <ol className="text-[11px] space-y-1 pl-4 list-decimal text-amber-900/90 dark:text-amber-200/90">
-            <li>
-              Check your inbox or <strong>Spam/Junk</strong> for an email from <strong>FormSubmit</strong>.
-            </li>
-            <li>
-              Click <strong>&quot;Activate Form&quot;</strong> in that email — it activates immediately!
-            </li>
-            <li>
-              Click <strong>&quot;Resend Code to Email&quot;</strong> below to receive your 6-digit OTP code.
-            </li>
-          </ol>
-          <p className="text-[10px] text-amber-800 dark:text-amber-300/90 font-medium pt-0.5">
-            ✨ This only happens once; from your next login onwards, OTPs arrive directly!
-          </p>
+          <div className="pt-1 flex items-center justify-between border-t border-amber-200/70 dark:border-amber-800/70">
+            <span className="text-[10px] text-amber-800 dark:text-amber-300 font-medium">
+              Click &quot;Activate Form&quot; in that email → then click Resend Code below!
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowActivationHelp(!showActivationHelp)}
+              className="text-[10px] text-amber-800 dark:text-amber-300 font-bold underline flex items-center gap-0.5 hover:text-amber-900 dark:hover:text-amber-100 cursor-pointer shrink-0"
+            >
+              <HelpCircle className="w-3 h-3" />
+              <span>{showActivationHelp ? "Hide guide" : "View guide"}</span>
+            </button>
+          </div>
+
+          {showActivationHelp && (
+            <div className="mt-2 p-2.5 rounded-lg bg-amber-100/70 dark:bg-amber-900/40 border border-amber-300/80 dark:border-amber-700/80 text-[11px] text-amber-950 dark:text-amber-100 space-y-1 animate-in fade-in-0">
+              <p className="font-bold">How to complete first-time activation:</p>
+              <ol className="list-decimal list-inside space-y-0.5 text-[10px]">
+                <li>Open your email inbox (and check <strong>Spam / Junk</strong>).</li>
+                <li>Find the email sent by <strong>FormSubmit</strong>.</li>
+                <li>Click the blue <strong>&quot;Activate Form&quot;</strong> button inside that email.</li>
+                <li>It activates immediately! No password or setup required.</li>
+                <li>Return here and click <strong>&quot;Resend Code to Email&quot;</strong> below to get your OTP.</li>
+              </ol>
+            </div>
+          )}
         </div>
 
         {errorMessage && (
-          <div
-            className={`p-3 rounded-xl text-xs flex items-center gap-2 mb-4 animate-in fade-in-0 ${
-              isBlocked
-                ? "bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800"
-                : "bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800"
-            }`}
-          >
-            {isBlocked ? (
-              <Lock className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
-            ) : (
-              <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-            )}
-            <span className="font-semibold">{errorMessage}</span>
+          <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs flex items-center gap-2 transition-colors">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{errorMessage}</span>
           </div>
         )}
 
-        <label className="text-xs font-semibold text-gray-700 dark:text-slate-300 mb-2 block">
-          Enter 6-digit OTP Code
-        </label>
-        <div className="flex gap-2 justify-center mb-5">
+        {/* 6 Digit Input Boxes */}
+        <div className="flex justify-center gap-2 sm:gap-2.5 mb-5">
           {otp.map((digit, i) => (
             <input
               key={i}
@@ -360,6 +360,20 @@ export function OTPVerification({ onVerify, onBlocked, targetEmail: propEmail }:
           <div className="flex items-center gap-2 justify-center text-[#22C55E] dark:text-emerald-400 text-xs font-semibold mb-4 animate-in fade-in-0">
             <CheckCircle className="w-4 h-4" />
             <span>OTP verified successfully! Redirecting...</span>
+          </div>
+        )}
+
+        {/* Back to Login Link */}
+        {onBack && (
+          <div className="pt-2 pb-3 text-center border-t border-gray-100 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={onBack}
+              className="text-xs font-semibold text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to Sign In</span>
+            </button>
           </div>
         )}
 

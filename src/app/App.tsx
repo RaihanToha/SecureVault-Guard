@@ -71,6 +71,7 @@ function MainApp() {
       <OTPVerification
         onVerify={() => setIsMfaVerified(true)}
         onBlocked={() => logout()}
+        onBack={() => logout()}
       />
     );
   }

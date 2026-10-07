@@ -1,0 +1,249 @@
+{
+  "entities": {
+    "userProfile": {
+      "title": "UserProfile",
+      "description": "User account settings, contact details, recovery email, 2FA status, and cloud sync preferences",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The unique Firebase Auth UID"
+        },
+        "fullName": {
+          "type": "string",
+          "description": "User display name",
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "description": "Primary login email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Contact phone number",
+          "maxLength": 30
+        },
+        "role": {
+          "type": "string",
+          "description": "User organization role",
+          "maxLength": 50
+        },
+        "department": {
+          "type": "string",
+          "description": "User department",
+          "maxLength": 50
+        },
+        "recoveryEmail": {
+          "type": "string",
+          "description": "Secondary recovery email address for password resets",
+          "maxLength": 100
+        },
+        "timezone": {
+          "type": "string",
+          "description": "User timezone",
+          "maxLength": 50
+        },
+        "mfaEnabled": {
+          "type": "boolean",
+          "description": "Whether two-factor authentication / OTP is enforced"
+        },
+        "cloudSyncEnabled": {
+          "type": "boolean",
+          "description": "Whether vault passwords and files are automatically synced to the cloud"
+        },
+        "avatar": {
+          "type": "string",
+          "description": "Data URL or avatar picture",
+          "maxLength": 500000
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp of last profile update"
+        }
+      },
+      "required": ["uid", "email"]
+    },
+    "passwordRecord": {
+      "title": "PasswordRecord",
+      "description": "Stored credential record containing encrypted password and metadata",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Document ID of password record"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner user UID"
+        },
+        "website": {
+          "type": "string",
+          "description": "Website or service name",
+          "maxLength": 150
+        },
+        "username": {
+          "type": "string",
+          "description": "Account login username or email",
+          "maxLength": 150
+        },
+        "password": {
+          "type": "string",
+          "description": "Encrypted or stored credential string",
+          "maxLength": 1000
+        },
+        "strength": {
+          "type": "string",
+          "description": "Assessed strength level",
+          "enum": ["Weak", "Medium", "Strong", "Very Strong"]
+        },
+        "category": {
+          "type": "string",
+          "description": "Credential category",
+          "maxLength": 50
+        },
+        "lastUpdated": {
+          "type": "string",
+          "description": "Human-readable last update date or ISO string",
+          "maxLength": 100
+        },
+        "breachStatus": {
+          "type": "string",
+          "description": "HaveIBeenPwned breach status",
+          "enum": ["Safe", "Compromised", "Unchecked", "Checking"]
+        },
+        "breachCount": {
+          "type": "number",
+          "description": "Number of times this password appeared in known public breaches"
+        },
+        "lastCheckedAt": {
+          "type": "string",
+          "description": "Timestamp when breach scan was performed",
+          "maxLength": 100
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp"
+        }
+      },
+      "required": ["id", "userId", "website", "username", "password"]
+    },
+    "fileRecord": {
+      "title": "FileRecord",
+      "description": "Stored encrypted file metadata, SHA-256 integrity hash, and encrypted data content",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Document ID of the file record"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner user UID"
+        },
+        "name": {
+          "type": "string",
+          "description": "Original file name",
+          "maxLength": 255
+        },
+        "type": {
+          "type": "string",
+          "description": "File extension",
+          "maxLength": 20
+        },
+        "size": {
+          "type": "string",
+          "description": "Formatted file size string",
+          "maxLength": 30
+        },
+        "sizeBytes": {
+          "type": "number",
+          "description": "File size in bytes"
+        },
+        "integrityStatus": {
+          "type": "string",
+          "description": "SHA-256 verification status",
+          "enum": ["Verified", "Tampered"]
+        },
+        "fileHash": {
+          "type": "string",
+          "description": "64-character SHA-256 checksum hex",
+          "maxLength": 64
+        },
+        "dataBase64": {
+          "type": "string",
+          "description": "Encrypted file payload in base64 format",
+          "maxLength": 1048576
+        },
+        "uploadedOn": {
+          "type": "string",
+          "description": "Upload date string",
+          "maxLength": 100
+        }
+      },
+      "required": ["id", "userId", "name", "fileHash", "integrityStatus"]
+    },
+    "securityLog": {
+      "title": "SecurityLog",
+      "description": "Audit trail log record for security sensitive actions",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique log record ID"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner user UID"
+        },
+        "activity": {
+          "type": "string",
+          "description": "Action name (e.g. Login successful, Password viewed)",
+          "maxLength": 200
+        },
+        "status": {
+          "type": "string",
+          "description": "Result status",
+          "enum": ["Success", "Failed", "Warning"]
+        },
+        "time": {
+          "type": "string",
+          "description": "Formatted date/time string",
+          "maxLength": 100
+        },
+        "source": {
+          "type": "string",
+          "description": "Module source",
+          "maxLength": 50
+        },
+        "details": {
+          "type": "string",
+          "description": "Event detail description",
+          "maxLength": 500
+        },
+        "timestamp": {
+          "type": "number",
+          "description": "Epoch timestamp"
+        }
+      },
+      "required": ["id", "userId", "activity", "status", "time"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "userProfile",
+      "description": "Private user account profile, settings, 2FA, and cloud sync configuration"
+    },
+    "/users/{userId}/passwords/{passwordId}": {
+      "schema": "passwordRecord",
+      "description": "Private password vault credentials belonging to the user"
+    },
+    "/users/{userId}/files/{fileId}": {
+      "schema": "fileRecord",
+      "description": "Private encrypted file vault records belonging to the user"
+    },
+    "/users/{userId}/audit_logs/{logId}": {
+      "schema": "securityLog",
+      "description": "Audit security log entries recorded for the user"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "SecureVault Guard",
+  "description": "Manage and secure passwords, files, and security logs with an intuitive dashboard designed for enhanced digital protection and easy access control.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

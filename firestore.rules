@@ -1,0 +1,147 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidUserProfile(data, userId) {
+      return data is map
+        && data.uid == userId
+        && data.email is string
+        && data.email.size() > 0
+        && data.email.size() <= 150
+        && (!('fullName' in data) || (data.fullName is string && data.fullName.size() <= 100))
+        && (!('phone' in data) || (data.phone is string && data.phone.size() <= 50))
+        && (!('recoveryEmail' in data) || (data.recoveryEmail is string && data.recoveryEmail.size() <= 150))
+        && (!('role' in data) || (data.role is string && data.role.size() <= 100))
+        && (!('department' in data) || (data.department is string && data.department.size() <= 100))
+        && (!('timezone' in data) || (data.timezone is string && data.timezone.size() <= 100))
+        && (!('mfaEnabled' in data) || (data.mfaEnabled is bool))
+        && (!('cloudSyncEnabled' in data) || (data.cloudSyncEnabled is bool));
+    }
+
+    function isValidPassword(data, userId) {
+      return data is map
+        && data.userId == userId
+        && data.website is string
+        && data.website.size() > 0
+        && data.website.size() <= 200
+        && data.username is string
+        && data.username.size() > 0
+        && data.username.size() <= 200
+        && data.password is string
+        && data.password.size() > 0
+        && data.password.size() <= 1000
+        && (!('breachStatus' in data) || (data.breachStatus in ['Safe', 'Compromised', 'Unchecked', 'Checking']))
+        && (!('breachCount' in data) || (data.breachCount is number));
+    }
+
+    function isValidFile(data, userId) {
+      return data is map
+        && data.userId == userId
+        && data.name is string
+        && data.name.size() > 0
+        && data.name.size() <= 300
+        && data.fileHash is string
+        && data.fileHash.size() > 0
+        && data.fileHash.size() <= 128
+        && data.integrityStatus in ['Verified', 'Tampered'];
+    }
+
+    function isValidLog(data, userId) {
+      return data is map
+        && data.userId == userId
+        && data.activity is string
+        && data.activity.size() > 0
+        && data.activity.size() <= 300
+        && data.status in ['Success', 'Failed', 'Warning'];
+    }
+
+    // User Root Document (Personal settings, recovery email, 2FA, sync state)
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if false; // Blanket user listing forbidden
+
+      allow create: if isOwner(userId)
+        && isValidId(userId)
+        && isValidUserProfile(request.resource.data, userId);
+
+      allow update: if isOwner(userId)
+        && isValidId(userId)
+        && isValidUserProfile(request.resource.data, userId)
+        && request.resource.data.uid == resource.data.uid;
+
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      // Password Subcollection
+      match /passwords/{passwordId} {
+        allow get, list: if isOwner(userId) && isValidId(userId);
+
+        allow create: if isOwner(userId)
+          && isValidId(userId)
+          && isValidId(passwordId)
+          && isValidPassword(request.resource.data, userId);
+
+        allow update: if isOwner(userId)
+          && isValidId(userId)
+          && isValidId(passwordId)
+          && isValidPassword(request.resource.data, userId)
+          && request.resource.data.userId == resource.data.userId;
+
+        allow delete: if isOwner(userId) && isValidId(userId) && isValidId(passwordId);
+      }
+
+      // File Vault Subcollection
+      match /files/{fileId} {
+        allow get, list: if isOwner(userId) && isValidId(userId);
+
+        allow create: if isOwner(userId)
+          && isValidId(userId)
+          && isValidId(fileId)
+          && isValidFile(request.resource.data, userId);
+
+        allow update: if isOwner(userId)
+          && isValidId(userId)
+          && isValidId(fileId)
+          && isValidFile(request.resource.data, userId)
+          && request.resource.data.userId == resource.data.userId;
+
+        allow delete: if isOwner(userId) && isValidId(userId) && isValidId(fileId);
+      }
+
+      // Security Audit Logs Subcollection
+      match /audit_logs/{logId} {
+        allow get, list: if isOwner(userId) && isValidId(userId);
+
+        allow create: if isOwner(userId)
+          && isValidId(userId)
+          && isValidId(logId)
+          && isValidLog(request.resource.data, userId);
+
+        allow update: if isOwner(userId)
+          && isValidId(userId)
+          && isValidId(logId)
+          && isValidLog(request.resource.data, userId)
+          && request.resource.data.userId == resource.data.userId;
+
+        allow delete: if isOwner(userId) && isValidId(userId) && isValidId(logId);
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "id": "/",
+  "name": "SecureVault Guard - Password & File Vault",
+  "short_name": "SecureVault",
+  "description": "AES-256 encrypted password vault and file storage with real-time SHA-256 checksum integrity monitoring and live Android synchronization.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#0B5CE5",
+  "background_color": "#0B5CE5",
+  "categories": ["security", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Password Vault",
+      "short_name": "Passwords",
+      "description": "View and manage encrypted passwords",
+      "url": "/#passwords",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "File Vault",
+      "short_name": "Files",
+      "description": "View and manage encrypted files",
+      "url": "/#files",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    }
+  ]
+}

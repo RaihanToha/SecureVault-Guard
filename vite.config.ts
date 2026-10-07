@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 
 
 function figmaAssetResolver() {
@@ -125,6 +126,60 @@ export default defineConfig({
     // Tailwind is not being actively used – do not remove them
     react(),
     tailwindcss(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['icon.svg', 'manifest.webmanifest'],
+      manifest: {
+        id: '/',
+        name: 'SecureVault Guard - Password & File Vault',
+        short_name: 'SecureVault',
+        description:
+          'AES-256 encrypted password vault and file storage with real-time SHA-256 checksum integrity monitoring and live Android synchronization.',
+        theme_color: '#0B5CE5',
+        background_color: '#0B5CE5',
+        display: 'standalone',
+        orientation: 'portrait-primary',
+        start_url: '/',
+        scope: '/',
+        icons: [
+          {
+            src: '/icon.svg',
+            sizes: '192x192 512x512',
+            type: 'image/svg+xml',
+            purpose: 'any',
+          },
+          {
+            src: '/icon.svg',
+            sizes: '512x512',
+            type: 'image/svg+xml',
+            purpose: 'maskable',
+          },
+        ],
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+        ],
+      },
+      devOptions: {
+        enabled: true,
+        type: 'module',
+      },
+    }),
   ],
   resolve: {
     alias: {

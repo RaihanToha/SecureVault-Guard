@@ -25,6 +25,10 @@ import {
   deleteFileFromCloud,
   fetchUserAuditLogs,
   saveAuditLogToCloud,
+  subscribeUserPasswords,
+  subscribeUserFiles,
+  subscribeUserAuditLogs,
+  subscribeUserProfile,
   type CloudUserProfile,
   type CloudPasswordRecord,
   type CloudFileRecord,
@@ -348,19 +352,23 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         try {
           const cloudProf = await getCloudUserProfile(user.uid);
           if (cloudProf) {
-            setProfile((prev) => ({
-              ...prev,
-              fullName: cloudProf.fullName || user.displayName || prev.fullName,
-              email: cloudProf.email || user.email || prev.email,
+            const mergedProfile: UserProfile = {
+              fullName: cloudProf.fullName || user.displayName || profile.fullName,
+              email: cloudProf.email || user.email || profile.email,
               phone: cloudProf.phone || "",
               role: cloudProf.role || "", // Only shown if added in Firebase manually
               department: cloudProf.department || "",
               recoveryEmail: cloudProf.recoveryEmail || "",
               timezone: cloudProf.timezone || "",
-              twoFactorEnabled: cloudProf.mfaEnabled ?? prev.twoFactorEnabled,
-              cloudSyncEnabled: cloudProf.cloudSyncEnabled ?? prev.cloudSyncEnabled,
-              avatar: cloudProf.avatar !== undefined ? cloudProf.avatar : null,
-            }));
+              twoFactorEnabled: cloudProf.mfaEnabled ?? profile.twoFactorEnabled,
+              cloudSyncEnabled: cloudProf.cloudSyncEnabled ?? profile.cloudSyncEnabled,
+              avatar: cloudProf.avatar !== undefined ? cloudProf.avatar : (profile.avatar || null),
+            };
+            setProfile(mergedProfile);
+            try {
+              localStorage.setItem(`${PROFILE_STORAGE_KEY}_${user.uid}`, JSON.stringify(mergedProfile));
+              localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(mergedProfile));
+            } catch {}
           } else {
             // First time user in Firestore: create profile document with empty role, phone, and photo
             await saveCloudUserProfile({
@@ -374,7 +382,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
               timezone: "",
               mfaEnabled: profile.twoFactorEnabled,
               cloudSyncEnabled: profile.cloudSyncEnabled,
-              avatar: null, // Leave profile photo empty for new users
+              avatar: profile.avatar || null,
             });
           }
 
@@ -471,6 +479,112 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       setIsSyncing(false);
     }
   };
+
+  // ---------------- REAL-TIME SYNCHRONIZATION EFFECT (Android & Web) ----------------
+  // Connects live Firestore snapshots so changes on Android immediately appear on Web and vice versa
+  useEffect(() => {
+    if (!firebaseUser || !profile.cloudSyncEnabled) return;
+    const uid = firebaseUser.uid;
+
+    const unsubs: (() => void)[] = [];
+
+    // Live sync Passwords
+    const unsubPwds = subscribeUserPasswords(uid, (cloudPwds) => {
+      if (cloudPwds) {
+        setPasswords(
+          cloudPwds.map((p) => ({
+            id: p.id,
+            website: p.website,
+            username: p.username,
+            password: p.password,
+            strength: p.strength,
+            category: p.category,
+            tags: p.tags || [],
+            lastUpdated: p.lastUpdated,
+            breachStatus: p.breachStatus,
+            breachCount: p.breachCount,
+            lastCheckedAt: p.lastCheckedAt,
+          }))
+        );
+        setLastSyncTime(new Date().toLocaleTimeString());
+      }
+    });
+    unsubs.push(unsubPwds);
+
+    // Live sync Files
+    const unsubFiles = subscribeUserFiles(uid, (cloudFiles) => {
+      if (cloudFiles) {
+        setFiles(
+          cloudFiles.map((f) => ({
+            id: f.id,
+            name: f.name,
+            type: f.type,
+            size: f.size,
+            sizeBytes: f.sizeBytes,
+            integrityStatus: f.integrityStatus,
+            fileHash: f.fileHash,
+            uploadedOn: f.uploadedOn,
+            tags: f.tags || [],
+            category: f.category || "",
+          }))
+        );
+        setLastSyncTime(new Date().toLocaleTimeString());
+      }
+    });
+    unsubs.push(unsubFiles);
+
+    // Live sync Security Logs
+    const unsubLogs = subscribeUserAuditLogs(uid, (cloudLogs) => {
+      if (cloudLogs) {
+        const userLogs: LogEntry[] = cloudLogs.map((l) => ({
+          id: l.id,
+          userId: l.userId || uid,
+          userEmail: profile.email || firebaseUser?.email || "",
+          activity: l.activity,
+          status: l.status,
+          time: l.time,
+          source: l.source,
+          details: l.details,
+          timestamp: l.timestamp,
+        }));
+        setSecurityLogs(userLogs);
+        try {
+          localStorage.setItem(`${LOGS_STORAGE_KEY}_${uid}`, JSON.stringify(userLogs));
+        } catch {}
+      }
+    });
+    unsubs.push(unsubLogs);
+
+    // Live sync User Profile & Avatar
+    const unsubProfile = subscribeUserProfile(uid, (cloudProf) => {
+      if (cloudProf) {
+        setProfile((prev) => {
+          const updatedProfile: UserProfile = {
+            fullName: cloudProf.fullName || prev.fullName,
+            email: cloudProf.email || prev.email,
+            phone: cloudProf.phone !== undefined ? cloudProf.phone : prev.phone,
+            role: cloudProf.role !== undefined ? cloudProf.role : prev.role,
+            department: cloudProf.department !== undefined ? cloudProf.department : prev.department,
+            recoveryEmail: cloudProf.recoveryEmail !== undefined ? cloudProf.recoveryEmail : prev.recoveryEmail,
+            timezone: cloudProf.timezone !== undefined ? cloudProf.timezone : prev.timezone,
+            twoFactorEnabled: cloudProf.mfaEnabled ?? prev.twoFactorEnabled,
+            cloudSyncEnabled: cloudProf.cloudSyncEnabled ?? prev.cloudSyncEnabled,
+            avatar: cloudProf.avatar !== undefined ? cloudProf.avatar : prev.avatar,
+          };
+          try {
+            localStorage.setItem(`${PROFILE_STORAGE_KEY}_${uid}`, JSON.stringify(updatedProfile));
+            localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(updatedProfile));
+          } catch {}
+          return updatedProfile;
+        });
+      }
+    });
+    unsubs.push(unsubProfile);
+
+    return () => {
+      unsubs.forEach((u) => u && u());
+    };
+  }, [firebaseUser, profile.cloudSyncEnabled]);
 
   // Add security log helper (stamped with user identity)
   const addSecurityLog = async (
@@ -749,13 +863,25 @@ SecureVault Guard Security Team`,
   };
 
   const updateAvatar = async (avatarDataUrl: string | null) => {
-    setProfile((prev) => ({ ...prev, avatar: avatarDataUrl }));
+    const updatedProfile: UserProfile = { ...profile, avatar: avatarDataUrl };
+    setProfile(updatedProfile);
+
     if (firebaseUser) {
+      try {
+        localStorage.setItem(`${PROFILE_STORAGE_KEY}_${firebaseUser.uid}`, JSON.stringify(updatedProfile));
+        localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(updatedProfile));
+      } catch {}
+
       try {
         await saveCloudUserProfile({
           uid: firebaseUser.uid,
-          fullName: profile.fullName,
-          email: profile.email,
+          fullName: profile.fullName || firebaseUser.displayName || "",
+          email: profile.email || firebaseUser.email || "",
+          phone: profile.phone || "",
+          role: profile.role || "",
+          department: profile.department || "",
+          recoveryEmail: profile.recoveryEmail || "",
+          timezone: profile.timezone || "",
           mfaEnabled: profile.twoFactorEnabled,
           cloudSyncEnabled: profile.cloudSyncEnabled,
           avatar: avatarDataUrl,
@@ -764,6 +890,13 @@ SecureVault Guard Security Team`,
         console.warn("Failed saving avatar to cloud:", e);
       }
     }
+
+    await addSecurityLog(
+      avatarDataUrl ? "Profile photo updated" : "Profile photo removed",
+      "Success",
+      "Profile",
+      avatarDataUrl ? "Uploaded custom avatar photo" : "Reset avatar to initials"
+    );
   };
 
   // Profile: Step 1 of Password Change - Verify Previous Password & Send Email OTP

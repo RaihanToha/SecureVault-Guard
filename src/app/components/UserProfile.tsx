@@ -26,10 +26,13 @@ import {
   Moon,
   Sun,
   Palette,
+  Smartphone,
+  Zap,
 } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import { useTheme } from "../context/ThemeContext";
 import { UserAvatar } from "./UserAvatar";
+import { compressAvatarImage } from "../utils/imageUtils";
 
 export function UserProfile() {
   const { theme, isDark, toggleTheme, setTheme } = useTheme();
@@ -114,7 +117,7 @@ export function UserProfile() {
   }, [otpResendCooldown, isOtpModalOpen]);
 
   // Handle Profile Photo Upload
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -124,24 +127,22 @@ export function UserProfile() {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setProfileErrorMessage("Image is too large. Please select an image under 5MB.");
-      setTimeout(() => setProfileErrorMessage(null), 4000);
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const dataUrl = event.target?.result as string;
+    try {
+      // Compress and resize avatar to lightweight WebP/JPEG data URL (<30KB)
+      const dataUrl = await compressAvatarImage(file, 256, 0.85);
       if (dataUrl) {
         await updateAvatar(dataUrl);
         setProfileErrorMessage(null);
-        setProfileSuccessMessage("Profile photo updated and saved to cloud!");
+        setProfileSuccessMessage("Profile photo updated and permanently saved to cloud!");
         setTimeout(() => setProfileSuccessMessage(null), 3500);
       }
-    };
-    reader.readAsDataURL(file);
-    e.target.value = "";
+    } catch (err) {
+      console.warn("Avatar processing error:", err);
+      setProfileErrorMessage("Could not process the selected image. Please try another image.");
+      setTimeout(() => setProfileErrorMessage(null), 4000);
+    } finally {
+      e.target.value = "";
+    }
   };
 
   const handleRemovePhoto = async () => {
@@ -499,6 +500,71 @@ export function UserProfile() {
                 <span className="text-[10px] text-gray-500 dark:text-slate-400 block mt-0.5">
                   Last sync: {lastSyncTime || "Real-time"}
                 </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Multi-Device Live Cloud Sync Card */}
+          <div className="bg-gradient-to-br from-slate-900 to-blue-950 text-white rounded-2xl p-5 sm:p-6 border border-blue-900/60 shadow-xs space-y-4 transition-colors">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-400/30 text-cyan-300 flex items-center justify-center shrink-0">
+                  <Cloud className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-white">Multi-Device Cloud Sync</h3>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">
+                      Live Sync Active
+                    </span>
+                  </div>
+                  <p className="text-xs text-blue-200/80 mt-0.5">
+                    Your encrypted vault updates simultaneously across all your phones, tablets, and computers.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  await syncNow();
+                  setSyncStatusMsg("Vault synchronized with cloud successfully!");
+                  setTimeout(() => setSyncStatusMsg(null), 3000);
+                }}
+                disabled={isSyncing}
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 shrink-0 cursor-pointer disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${isSyncing ? "animate-spin" : ""}`} />
+                <span>{isSyncing ? "Syncing..." : "Sync Vault Now"}</span>
+              </button>
+            </div>
+
+            {syncStatusMsg && (
+              <div className="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>{syncStatusMsg}</span>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-blue-100">
+              <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-start gap-2.5">
+                <Zap className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-white">Simultaneous Live Updates</p>
+                  <p className="text-[11px] text-blue-200/70">
+                    Real-time cloud listeners instantly push new passwords and files across all active screens.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-start gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-white">End-to-End Vault Integrity</p>
+                  <p className="text-[11px] text-blue-200/70">
+                    Encrypted client-side storage guarantees full zero-knowledge protection across all devices.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

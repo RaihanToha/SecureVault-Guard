@@ -9,6 +9,7 @@ import {
   query,
   orderBy,
   limit,
+  onSnapshot,
 } from "firebase/firestore";
 import { db, auth } from "./config";
 import { handleFirestoreError, OperationType } from "./firestoreErrors";
@@ -94,6 +95,31 @@ export async function saveCloudUserProfile(profile: CloudUserProfile): Promise<v
     }, { merge: true });
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, path);
+  }
+}
+
+export function subscribeUserProfile(
+  userId: string,
+  callback: (profile: CloudUserProfile | null) => void
+): () => void {
+  try {
+    const docRef = doc(db, "users", userId);
+    return onSnapshot(
+      docRef,
+      (snapshot) => {
+        if (snapshot.exists()) {
+          callback(snapshot.data() as CloudUserProfile);
+        } else {
+          callback(null);
+        }
+      },
+      (error) => {
+        console.warn("[Realtime User Profile Sync Error]:", error);
+      }
+    );
+  } catch (e) {
+    console.warn("Failed setting up user profile realtime listener:", e);
+    return () => {};
   }
 }
 
@@ -228,5 +254,76 @@ export async function saveAuditLogToCloud(
     await setDoc(doc(db, "users", userId, "audit_logs", logEntry.id), logEntry);
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, path);
+  }
+}
+
+// ---------------- REAL-TIME SYNCHRONIZATION LISTENERS (Android & Web) ----------------
+export function subscribeUserPasswords(
+  userId: string,
+  callback: (passwords: CloudPasswordRecord[]) => void
+): () => void {
+  try {
+    const ref = collection(db, "users", userId, "passwords");
+    return onSnapshot(
+      ref,
+      (snapshot) => {
+        const list: CloudPasswordRecord[] = [];
+        snapshot.forEach((d) => list.push(d.data() as CloudPasswordRecord));
+        callback(list);
+      },
+      (error) => {
+        console.warn("[Realtime Passwords Sync Error]:", error);
+      }
+    );
+  } catch (e) {
+    console.warn("Failed setting up passwords realtime listener:", e);
+    return () => {};
+  }
+}
+
+export function subscribeUserFiles(
+  userId: string,
+  callback: (files: CloudFileRecord[]) => void
+): () => void {
+  try {
+    const ref = collection(db, "users", userId, "files");
+    return onSnapshot(
+      ref,
+      (snapshot) => {
+        const list: CloudFileRecord[] = [];
+        snapshot.forEach((d) => list.push(d.data() as CloudFileRecord));
+        callback(list);
+      },
+      (error) => {
+        console.warn("[Realtime Files Sync Error]:", error);
+      }
+    );
+  } catch (e) {
+    console.warn("Failed setting up files realtime listener:", e);
+    return () => {};
+  }
+}
+
+export function subscribeUserAuditLogs(
+  userId: string,
+  callback: (logs: CloudSecurityLog[]) => void
+): () => void {
+  try {
+    const ref = collection(db, "users", userId, "audit_logs");
+    return onSnapshot(
+      ref,
+      (snapshot) => {
+        const list: CloudSecurityLog[] = [];
+        snapshot.forEach((d) => list.push(d.data() as CloudSecurityLog));
+        list.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        callback(list);
+      },
+      (error) => {
+        console.warn("[Realtime Audit Logs Sync Error]:", error);
+      }
+    );
+  } catch (e) {
+    console.warn("Failed setting up audit logs realtime listener:", e);
+    return () => {};
   }
 }

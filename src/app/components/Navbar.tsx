@@ -135,7 +135,7 @@ export function Navbar({ currentPage, onNavigate, onLogout }: NavbarProps) {
           <button
             type="button"
             onClick={toggleTheme}
-            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
             title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
             aria-label="Toggle theme"
           >
@@ -208,6 +208,22 @@ export function Navbar({ currentPage, onNavigate, onLogout }: NavbarProps) {
                 >
                   <FileCheck2 className="w-4 h-4 text-emerald-400" />
                   <span>Security Logs</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setProfileDropdownOpen(false);
+                    setAndroidModalOpen(true);
+                  }}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm text-left transition-colors font-medium text-cyan-400 hover:bg-white/10 hover:text-cyan-300 cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Smartphone className="w-4 h-4 text-cyan-400" />
+                    <span>Android App &amp; Sync</span>
+                  </div>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-bold">
+                    App
+                  </span>
                 </button>
 
                 <button
